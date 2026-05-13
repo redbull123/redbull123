@@ -1,0 +1,31 @@
+# Core dependencies
+pandas>=2.0.0
+numpy>=1.24.0
+
+# Data validation and serialization
+pydantic>=2.0.0
+
+# Database
+psycopg2-binary>=2.9.0
+sqlalchemy>=2.0.0
+
+# Configuration
+pyyaml>=6.0
+
+# Logging and monitoring
+python-dotenv>=1.0.0
+
+# Testing (for future)
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Code quality (optional but recommended)
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# Apache Airflow (for Sprint 1)
+# apache-airflow>=2.7.0  # Uncomment when ready
+
+# Docker SDK (for Sprint 2)
+# docker>=6.1.0  # Uncomment when ready
