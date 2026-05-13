@@ -1,38 +1,36 @@
--- KPI 1 — Attach Success Rate (ASR) por hora
-WITH hourly_stats AS (
-    SELECT
-        date_trunc('hour', "timestamp") as event_hour,
-        COUNT(*) as total_attempts,
-        SUM(CASE WHEN result = 'success' THEN 1 ELSE 0 END) as successful_attempts
-    FROM eventos
-    WHERE event_type = 'attach'
-    GROUP BY 1
-)
-SELECT
-    event_hour,
-    total_attempts,
-    successful_attempts,
-    ROUND(CAST(100.0 * successful_attempts / total_attempts AS NUMERIC), 2) as asr_percent
-FROM hourly_stats
-ORDER BY event_hour;
+SELECT * FROM eventos
+--KPI 1 — Attach Success Rate (ASR) por hora
+WITH by_hour AS(
+	SELECT
+		TO_CHAR(timestamp, 'YYYY-MM-DD HH24') AS time_by_hour,
+		event_type,
+		cause_code,
+		COUNT(cause_code) OVER(PARTITION BY TO_CHAR(timestamp, 'YYYY-MM-DD HH24')
+								ORDER BY event_type) AS Recurrency
+	FROM eventos
+	WHERE event_type = 'attach'
+	),
+	total_stat AS(
+	SELECT
+		time_by_hour,
+		event_type,
+		cause_code,
+		SUM(recurrency) AS total_recurrency
+	FROM by_hour
+	GROUP BY time_by_hour, event_type, cause_code
 
--- KPI 2 — Top 10 eNodeBs con más fallos (HOSR)
+	)
 SELECT
-    enodeb_id,
-    COUNT(*) as total_handovers,
-    SUM(CASE WHEN result = 'failure' THEN 1 ELSE 0 END) as failed_handovers,
-    ROUND(CAST(100.0 * SUM(CASE WHEN result = 'failure' THEN 1 ELSE 0 END) / COUNT(*) AS NUMERIC), 2) as failure_rate
-FROM eventos
-WHERE event_type = 'handover'
-GROUP BY enodeb_id
-ORDER BY failed_handovers DESC
-LIMIT 10;
+	time_by_hour,
+	event_type,
+	cause_code,
 
--- KPI 3 — Distribución de duración por tipo de evento
-SELECT
-    event_type,
-    AVG(CAST(duration_ms AS INTEGER)) as avg_duration,
-    MIN(CAST(duration_ms AS INTEGER)) as min_duration,
-    MAX(CAST(duration_ms AS INTEGER)) as max_duration
-FROM eventos
-GROUP BY event_type;
+
+--KPI 2 — Top 10 eNodeBs con más fallos (HOSR)
+
+--KPI 3 — Distribución de duración por tipo de evento (percentiles)
+
+
+--KPI 4 — Detección de anomalías por ventana de tiempo (ROWS BETWEEN)
+
+--KPI 5 — Análisis de causa de fallo (top causas por tipo + CROSSTAB):
